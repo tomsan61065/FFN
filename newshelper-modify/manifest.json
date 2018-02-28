@@ -1,0 +1,58 @@
+{
+  //必要3個
+  "manifest_version": 2,
+  "name": "modify",
+  "version": "1.0.0",
+
+  //建議
+  "default_locale": "en",
+  "description": "try to modify from newshelper.gov.tw",
+  //"icons":{...},
+
+  "permissions": [
+    "notifications",
+    "http://newshelper.g0v.tw/*",
+    "https://www.facebook.com/*",
+    "http://www.facebook.com/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+
+  "background": { //看不見的背景來處理主要邏輯
+    "scripts": ["vendor/jquery-3.2.1.min.js", "libs/url-normalizer.js/url-normalizer.js", "background.js"] 
+    //加上 "persistent": false <- 就會變成eventPage, 不會持續執行(是否常駐)
+  },
+
+  //"browser_action", "page_action", "theme", "app"四選一
+  "page_action" : {
+      "default_icon" : "icons/icon.png",
+      "default_title" : "__MSG_extensionPageActionTitle__",
+      "default_popup" : "popup.html"
+  },
+
+  "web_accessible_resources" : [
+    "libs/url-normalizer.js/map.csv"
+  ],
+  "content_scripts" : [ //需要與使用者正在瀏覽的頁面進行互動所需(可改變內容)
+    {  
+      "matches": [
+        "http://www.facebook.com/*",
+        "https://www.facebook.com/*",
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "vendor/jquery-3.2.1.min.js",
+        "content_script.js"
+      ],
+      "css": [
+        "content_style.css"
+      ],
+      "run_at" : "document_idle",
+      "all_frames" : false
+    }
+  ]
+
+//  ,"homepage_url": "https://addons.mozilla.org/zh-TW/firefox/addon/newshelper/"
+
+}

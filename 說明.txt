@@ -1,0 +1,7 @@
+由 http://newshelper.g0v.tw/ 的 chrome extension 修改
+
+chrome-extension:
+	參考 
+		https://blog.longwin.com.tw/2014/01/chrome-extensions-plugin-develop-2014/
+		https://ithelp.ithome.com.tw/articles/10186017
+		https://www.w3schools.com/default.asp
