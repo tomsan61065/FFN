@@ -126,6 +126,7 @@ var newshelper_cs = {
             rule: rule,
             action: 1
           })
+          // 以下為新增buildActionBars
            + ' . ' + me.buildActionBars({
             title: titleText,
             link: linkHref,

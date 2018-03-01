@@ -2,6 +2,23 @@
 
 chrome-extension:
 	參考 
-		https://blog.longwin.com.tw/2014/01/chrome-extensions-plugin-develop-2014/
-		https://ithelp.ithome.com.tw/articles/10186017
-		https://www.w3schools.com/default.asp
+	 -https://blog.longwin.com.tw/2014/01/chrome-extensions-plugin-develop-2014/
+	 -https://ithelp.ithome.com.tw/articles/10186017
+	 -https://www.w3schools.com/default.asp
+
+檔案更動:
+	替換 icon 成 chrome 教學提供的 icon 
+	
+	Manifest.json:
+	 -配合教學文章更動 manifest.json 排版
+	 -更動名稱與說明
+	 -嘗試移除不引響的功能 "applications", "repository", "bugs", "keywords", "icons"
+
+	_locales的2個json檔案
+	 -修改 "reportCTA" 的 "message"
+	 -新增自定義的 "reportCTB"
+	 
+	Content_script.js:
+	 -修改 buildActionBar 裡面的 url
+	 -新增自定義的 buildActionBars ，此為移除 buildActionBar 裡非必要功能與將回傳的超連結更動為button的形式
+	 -並在後面多個判斷動態並新增超連結的部分旁邊，插入自定義 buildActionBars 的 button (如content_script.js 的第129行後 )
