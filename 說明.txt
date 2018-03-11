@@ -12,7 +12,7 @@ chrome-extension:
 	Manifest.json:
 	 -配合教學文章更動 manifest.json 排版
 	 -更動名稱與說明
-	 -嘗試移除不引響的功能 "applications", "repository", "bugs", "keywords", "icons"
+	 -嘗試移除不影響的功能 "applications", "repository", "bugs", "keywords", "icons"
 
 	_locales的2個json檔案
 	 -修改 "reportCTA" 的 "message"

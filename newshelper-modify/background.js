@@ -9,12 +9,14 @@ var newshelper_bg = {
     // check recent seen news with report
     if (parseInt(report.deleted_at, 10)) return;
     var me = newshelper_bg;
-
+  
     me.get_newshelper_db( opened_db => {
       var transaction = opened_db.transaction("read_news", 'readonly');
       var objectStore = transaction.objectStore("read_news");
       var index = objectStore.index('link');
       var get_request = index.get(report.news_link);
+
+      //如同func = function()無輸入 {... return} 沒回傳值就要"{}"大括號，不然會自動return
       get_request.onsuccess = () => {
         if (!get_request.result) return;
 

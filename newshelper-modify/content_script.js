@@ -7,6 +7,15 @@ var newshelper_cs = {
   registerObserver: () => {
     /* deal with changed DOMs (i.e. AJAX-loaded content) */
     var me = newshelper_cs;
+
+    // MutationOberver API 用來監視 DOM 變動 
+    // 1.等待所有腳本任務完成後才運行 (異步方式)
+    // 2.把 DOM 變動紀錄封裝成一個數據組
+    // https://developer.mozilla.org/zh-TW/docs/Web/API/MutationObserver
+    // http://javascript.ruanyifeng.com/dom/mutationobserver.html
+    // http://csbun.github.io/blog/2015/05/mutation-observer-and-event/
+
+    //兼容各瀏覽器前墜
     var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 
     var throttle = ( () => {
@@ -19,28 +28,39 @@ var newshelper_cs = {
 
     // 直接 censor 整個 document
     // 這樣才能偵測到滑鼠點選換頁的事件
-    var target = document;
-    var config = {
-      attributes: true,
-      childList: true,
-      characterData: true,
-      subtree: true
+    var target = document; // 目標node
+    var config = { // 設定 observer 的觀察對象
+      childList: true, // 子節點的變動
+      attributes: true, // 屬性的變動 (監聽 href 屬性)
+      characterData: true, // 節點內容或節點文本的變動
+      subtree: true // 所有後代節點的變動 (設定此還需指定上述一個或多個)
+      // attributeOldValue : 布林值，觀察attributes變動時，是否紀錄變動前的屬性
+      // characterDateOldValue : 類似同上
+      // attributeFilter : 類型為數組(ex ['class', 'src'])，表示需要觀察的特定屬性
     };
-
+    
+    // 建構函數 觀察變數 = new MutationObserver( callback )
     var mutationObserver = new MutationObserver( mutations => {
-      chrome.runtime.sendMessage({method: 'page'});
+
+      // 與extension其他部分通訊
+      // https://crxdoc-zh.appspot.com/apps/messaging
+      // https://developer.mozilla.org/en-US/Add-ons/WebExtensions/API/runtime/sendMessage
+      // browser.runtime.sendMessage(extensionID(optional string), message, options);
+      chrome.runtime.sendMessage({method: 'page'}); // 傳遞給background.js (onRequest 那?)
 
       var hasNewNode = false;
       mutations.forEach( mutation => {
-        if (mutation.type == 'childList' && mutation.addedNodes.length > 0) hasNewNode = true;
+        if (mutation.type == 'childList' && mutation.addedNodes.length > 0) //有childList, 有新增東西會 > 1
+          hasNewNode = true;
       });
       if (hasNewNode) {
         throttle( () => {
-          me.censorFacebook(target);
+          me.censorFacebook(target); // line 106左右
         }, 1000);
       }
     });
 
+    // (所要觀察的DOM節點, 指定觀察的特定變動(看 line 32 的 config) )
     mutationObserver.observe(target, config);
   },
 
@@ -53,10 +73,11 @@ var newshelper_cs = {
   </div>`,
 
   buildActionBar: options => {
+    //options 有 title: titleText, link: linkHref, rule: rule, action: 1
+    var url = 'http://newshelper.g0v.tw';
 
-    //var url = 'http://newshelper.g0v.tw';
-    var url = "https://www.youtube.com/watch?v=CAuNuoNUHqk";
-
+    // !== : 如同 == 與 ===，嚴格的 != 
+    // 有 link & title 會在回報頁面自動填上
     if ('undefined' !== typeof(options.title) && 'undefined' !== typeof(options.link)) {
       url += '?news_link=' + encodeURIComponent(options.link) + '&news_title= ' + encodeURIComponent(options.title);
     }
@@ -64,16 +85,7 @@ var newshelper_cs = {
       if ('undefined' !== typeof(options.rule))   url += '&rule=' + encodeURIComponent(options.rule);
       if ('undefined' !== typeof(options.action)) url += '&action=' + encodeURIComponent(options.action);
     }
-
-    // ===========================================================================
-   /* 
-    var btn = document.createElement("BUTTON")
-    var t = document.createTextNode("CLICK ME");
-    btn.appendChild(t);
-    //Appending to DOM 
-    document.body.appendChild(btn);
-    */
-
+    // 從 _local 裡面抓 'reportCTA' 的 message
     return `<a href="${url}" target="_blank">${chrome.i18n.getMessage('reportCTA')}</a>`;
   },
 

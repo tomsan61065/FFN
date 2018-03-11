@@ -18,7 +18,7 @@
     "https://*/*"
   ],
 
-  "background": { //看不見的背景來處理主要邏輯
+  "background": { //看不見的背景來處理主要邏輯 ,有event_script, popup.js
     "scripts": ["vendor/jquery-3.2.1.min.js", "libs/url-normalizer.js/url-normalizer.js", "background.js"] 
     //加上 "persistent": false <- 就會變成eventPage, 不會持續執行(是否常駐)
   },
