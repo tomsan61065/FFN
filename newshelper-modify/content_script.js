@@ -55,7 +55,7 @@ var newshelper_cs = {
       });
       if (hasNewNode) {
         throttle( () => {
-          me.censorFacebook(target); // line 106左右
+          me.censorFacebook(target); // line 102左右
         }, 1000);
       }
     });
@@ -73,7 +73,7 @@ var newshelper_cs = {
   </div>`,
 
   buildActionBar: options => {
-    //options 有 title: titleText, link: linkHref, rule: rule, action: 1
+    //options 有 title(titleText), link(linkHref), rule(rule), action(1)
     var url = 'http://newshelper.g0v.tw';
 
     // !== : 如同 == 與 ===，嚴格的 != 
@@ -86,7 +86,8 @@ var newshelper_cs = {
       if ('undefined' !== typeof(options.action)) url += '&action=' + encodeURIComponent(options.action);
     }
     // 從 _local 裡面抓 'reportCTA' 的 message
-    return `<a href="${url}" target="_blank">${chrome.i18n.getMessage('reportCTA')}</a>`;
+  //  return `<a href="${url}" target="_blank">${chrome.i18n.getMessage('reportCTA')}</a>`;
+    return `<button type="button" onclick="location.href='${url}'"> ${chrome.i18n.getMessage('reportCTA')} </button>`;
   },
 
   //改為button的修改
@@ -94,8 +95,7 @@ var newshelper_cs = {
 
     var url = "https://www.youtube.com/watch?v=CAuNuoNUHqk";
 
-    return `<button type="button" onclick="location.href='${url}'"> 
-    ${chrome.i18n.getMessage('reportCTB')} </button> . <button type="button" onclick="alert('Hello :D')">click</button>`;
+    return `<button type="button" onclick="location.href='${url}'"> ${chrome.i18n.getMessage('reportCTB')} </button>`;
   },
 
 
@@ -106,16 +106,27 @@ var newshelper_cs = {
       https://github.com/g0v/newshelper-extension/wiki/Facebook-DOM
     */
 
-    var t1_ = Date.now();
+    var t1_ = Date.now(); //毫秒
     if (window.location.host.indexOf("www.facebook.com") !== -1) {
       /* log browsing history into local database for further warning */
       /* add warning message to a Facebook post if necessary */
       var censorFacebookNode = (containerNode, titleText, linkHref, rule) => {
         if (DEBUG_) console.log('censorFacebookNode', containerNode[0], titleText);
         while (true) {
+          // 比對的字串加上一些RE寫法  https://developer.mozilla.org/zh-TW/docs/Web/JavaScript/Guide/Regular_Expressions
+          // ^ : 匹配開頭
+          // $ : 匹配結尾
+          // . : 匹配除了換行以外的任何符號
+          // * : Kleene星號
+          // ? : 匹配前一個字元 0~1次 (http or https)
+          // []: 字元的集合，匹配括號內所有字元
+          // (): 這邊看起來比較像match分段要求 (0:整個, 1:L or www, 2:[^&]*)
           var matches = ('' + linkHref).match('^https?://(l|www).facebook.com/l.php\\?u=([^&]*)');
           if (matches) {
-            linkHref = decodeURIComponent(matches[2]);
+            
+            linkHref = decodeURIComponent(matches[2]); //此邊回傳FB連結中的新聞連結
+            console.log("HERE!");
+            console.log(matches.input);
             continue;
           }
           break;
@@ -124,7 +135,7 @@ var newshelper_cs = {
         matches = ('' + linkHref).match('(.*)[?&]fb_action_ids=.*');
         if (matches) linkHref = matches[1];
 
-        containerNode = $(containerNode);
+        containerNode = $(containerNode); //$ 是 jQuery的別名 https://engmeter.blogspot.tw/2014/12/jquery.html
         var className = "newshelper-checked";
         if (containerNode.hasClass(className)) return;
         else containerNode.addClass(className);
@@ -331,7 +342,7 @@ var newshelper_cs = {
         });
       };
 
-
+      //這邊開始就是藉由抓取FB特定的 class 來抓取新聞連結，並新增 回報連結 & button
       /* my timeline */
       $(baseNode)
         .find(".uiStreamAttachments")
@@ -405,6 +416,21 @@ var newshelper_cs = {
           var titleText = userContent.find("a").text();
           var linkHref = userContent.find("a").attr("href");
           censorFacebookNode(userContent.parents('._2r3x').find('._6m3').parents('._6m2').parent(), titleText, linkHref, 'rule7');
+        });
+
+        // 此為嘗試在FB每個動態都新增按鈕
+        // FB動態由以下三個class組成的樣子
+        // 1: ._5x46 頭部
+        // 2: ._5bpx 內文
+        // 3: ._3x-2 連結、影片、圖 
+        $(baseNode)
+        .find("._5x46")
+        .not(".newshelper-checked")
+        .each( (idx, userContent) => {
+          userContent = $(userContent);
+          var titleText = "title";
+          var linkHref = "https://cryptowat.ch/markets/bitstamp/btc/usd/1h";
+          censorFacebookNode(userContent, titleText, linkHref, 'rule7');
         });
     }
 
