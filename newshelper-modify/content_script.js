@@ -125,8 +125,8 @@ var newshelper_cs = {
           if (matches) {
             
             linkHref = decodeURIComponent(matches[2]); //此邊回傳FB連結中的新聞連結
-            console.log("HERE!");
-            console.log(matches.input);
+        //    console.log("HERE!");
+        //    console.log(matches.input);
             continue;
           }
           break;
@@ -139,6 +139,8 @@ var newshelper_cs = {
         var className = "newshelper-checked";
         if (containerNode.hasClass(className)) return;
         else containerNode.addClass(className);
+
+        var count = 0;
 
         // 先看看是不是 uiStreamActionFooter, 表示是同一個新聞有多人分享, 那只要最上面加上就好了
         var addedAction = false;
@@ -157,6 +159,7 @@ var newshelper_cs = {
             action: 1
            }));
           addedAction = true;
+          count = 0;
         });
 
         // 再看看單一動態，要加在 .uiStreamSource
@@ -175,6 +178,7 @@ var newshelper_cs = {
             }) + ' . ')).insertBefore(uiStreamSource);
 
             addedAction = true;
+            count = 2;
             // should only have one uiStreamSource
             if (idx != 0) console.error(idx + titleText);
           });
@@ -197,6 +201,7 @@ var newshelper_cs = {
               }) + ' . ')
             ).insertBefore(uiStreamSource);
             addedAction = true;
+            count = 3;
           });
         }
 
@@ -215,6 +220,7 @@ var newshelper_cs = {
               action: 4
             }));
             addedAction = true;
+            count = 4;
           });
         }
 
@@ -235,6 +241,7 @@ var newshelper_cs = {
               }))
             ).insertAfter(shareAction);
             addedAction = true;
+            count = 5;
           });
         }
 
@@ -252,6 +259,7 @@ var newshelper_cs = {
               action: 6
             }));
             addedAction = true;
+            count = 6;
           });
         }
         if (!addedAction) {
@@ -269,6 +277,7 @@ var newshelper_cs = {
               action: 7
             }));
             addedAction = true;
+            count = 7;
           });
         }
 
@@ -287,6 +296,7 @@ var newshelper_cs = {
               action: 8
             }));
             addedAction = true;
+            count = 8;
           });
         }
 
@@ -304,6 +314,7 @@ var newshelper_cs = {
               action: 9
             }));
             addedAction = true;
+            count = 9;
           });
         }
 
@@ -321,10 +332,13 @@ var newshelper_cs = {
               action: 10
             }));
             addedAction = true;
+            count = 10;
           });
         }
 
-        if (DEBUG_ && !addedAction) console.error('fail to insert actionbar ' + rule);
+        if (!addedAction) console.error('fail to insert actionbar ' + rule);
+
+        console.log(rule, count);
 
         /* log the link first */
         chrome.runtime.sendMessage({
@@ -343,7 +357,7 @@ var newshelper_cs = {
       };
 
       //這邊開始就是藉由抓取FB特定的 class 來抓取新聞連結，並新增 回報連結 & button
-      /* my timeline */
+      // my timeline
       $(baseNode)
         .find(".uiStreamAttachments")
         .not(".newshelper-checked")
@@ -375,7 +389,7 @@ var newshelper_cs = {
         censorFacebookNode(userContent, titleText, linkHref, 'rule3');
       });*/
 
-      /* others' timeline, fan page */
+      // others' timeline, fan page
       $(baseNode)
         .find(".shareUnit")
         .not(".newshelper-checked")
@@ -396,7 +410,7 @@ var newshelper_cs = {
           censorFacebookNode(userContent, titleText, linkHref, 'rule5');
         });
 
-      /* post page (single post) */
+      // post page (single post)
       $(baseNode)
         .find("._6kv")
         .not(".newshelper-checked")
@@ -407,30 +421,33 @@ var newshelper_cs = {
           censorFacebookNode(userContent, titleText, linkHref, 'rule6');
         });
 
-      /* post page (single post) */
+      // post page (single post) 
       $(baseNode)
-        .find("._6m3")
+        .find("._6m3") //內含 1.mbs._6m6 有FB連結+新聞的URI 2._6m7 有新聞標題 3<a href="">新聞URL
         .not(".newshelper-checked")
         .each( (idx, userContent) => {
           userContent = $(userContent);
           var titleText = userContent.find("a").text();
           var linkHref = userContent.find("a").attr("href");
+          console.log("b6", userContent, userContent.parents('._2r3x').find('._6m3').parents('._6m2').parent());
           censorFacebookNode(userContent.parents('._2r3x').find('._6m3').parents('._6m2').parent(), titleText, linkHref, 'rule7');
         });
 
+        // ===================================== 以下為自己添加但出問題的地方 =====================
         // 此為嘗試在FB每個動態都新增按鈕
         // FB動態由以下三個class組成的樣子
         // 1: ._5x46 頭部
         // 2: ._5bpx 內文
         // 3: ._3x-2 連結、影片、圖 
-        $(baseNode)
-        .find("._5x46")
+      $(baseNode)
+        .find(".mtm")
         .not(".newshelper-checked")
         .each( (idx, userContent) => {
           userContent = $(userContent);
           var titleText = "title";
           var linkHref = "https://cryptowat.ch/markets/bitstamp/btc/usd/1h";
-          censorFacebookNode(userContent, titleText, linkHref, 'rule7');
+          console.log("B7", userContent);
+          censorFacebookNode(userContent, titleText, linkHref, 'rule8');
         });
     }
 
