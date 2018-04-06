@@ -10,7 +10,7 @@ var newshelper_bg = {
     if (parseInt(report.deleted_at, 10)) return;
     var me = newshelper_bg;
   
-    me.get_newshelper_db( opened_db => {
+    me.get_newshelper_db( opened_db => { //line 50
       var transaction = opened_db.transaction("read_news", 'readonly');
       var objectStore = transaction.objectStore("read_news");
       var index = objectStore.index('link');
@@ -54,8 +54,8 @@ var newshelper_bg = {
       cb(me.opened_db);
       return;
     }
-
-    var request = indexedDB.open('newshelper', '8');
+    // https://developer.mozilla.org/zh-TW/docs/Web/API/IndexedDB_API/Basic_Concepts_Behind_IndexedDB
+    var request = indexedDB.open('newshelper', '8');// 資料存在 Local\Google\Chrome\User Data\Default\Local Storage 那
     request.onsuccess = () => {
       me.opened_db = request.result;
       cb(me.opened_db);
@@ -153,11 +153,11 @@ var newshelper_bg = {
     };
   },
 
-  check_report: (title, url, cb) => {
+  check_report: (title, url, cb) => { //從line 241 接受request 後要求 check_report
     // check report by title & url
     var me = newshelper_bg;
-    me.get_newshelper_db( opened_db => {
-
+    me.get_newshelper_db( opened_db => { //line 50的function
+      //URLNormalizer 在 url-normalizer.js 中定義的
       URLNormalizer.setCSVMapPath(chrome.extension.getURL('libs/url-normalizer.js/map.csv'));
       URLNormalizer.query(url, normalized_data => {
         if (normalized_data) {
@@ -238,7 +238,7 @@ var newshelper_bg = {
     });
   },
 
-  onRequest: (request, sender, sendResponse) => {
+  onRequest: (request, sender, sendResponse) => { //在這邊接收所有的runtime message
     var me = newshelper_bg;
 
     switch (request.method) {

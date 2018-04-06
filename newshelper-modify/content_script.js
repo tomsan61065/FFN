@@ -447,7 +447,7 @@ var newshelper_cs = {
           var titleText = "title";
           var linkHref = "https://cryptowat.ch/markets/bitstamp/btc/usd/1h";
           console.log("B7", userContent);
-          censorFacebookNode(userContent, titleText, linkHref, 'rule8');
+          censorFacebookNode(userContent, titleText, linkHref, 'rule7');
         });
     }
 
